@@ -1,0 +1,21 @@
+{
+  "name": "flatfy-js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/flatfy.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "mocha --ui bdd --recursive tests"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "mocha": "^2.4.5"
+  },
+  "dependencies": {
+    "string_score": "^0.1.22"
+  }
+}

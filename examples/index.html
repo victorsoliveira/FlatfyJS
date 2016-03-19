@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tests</title>
+</head>
+<body ng-app="TestApp" ng-controller="TestCtrl as vm">
+
+    <div id="editor" style="height: 500px; width: 800px"></div>
+
+    <script type="text/javascript" src="../bower_components/ace-builds/src-min-noconflict/ace.js"></script>
+    <script type="text/javascript" src="../bower_components/ace-builds/src-min-noconflict/ext-language_tools.js"></script>
+    <script type="text/javascript" src="../bower_components/angular/angular.js"></script>
+    <script type="text/javascript" src="../bower_components/lodash/dist/lodash.js"></script>
+    <script type="text/javascript" src="../node_modules/string_score/string_score.js"></script>
+    <script type="text/javascript" src="../src/flatfy.js"></script>
+
+    <script>
+
+        (function(angular){
+
+            var app = angular.module('TestApp', []);
+
+            app.config(function($provide){
+                $provide.constant('flatfy', new window.Flatfy());
+                $provide.constant('lodash', window._);
+                $provide.constant('ace', window.ace);
+                $provide.constant('stub', {
+                    Evt: {
+                        Certificado: {
+                            Mandatorio: true,
+                            Titulo: "Foo",
+                            Participantes: [
+                                {Nome: "Fulano"},
+                                {Nome: "Ciclano"}
+                            ]
+                        }
+                    }
+                });
+            });
+
+            app.controller('TestCtrl', function(flatfy, stub, lodash, ace){
+
+                var vm = this;
+
+                angular.extend(vm, {
+                    getProperties: properties
+                });
+
+                flatfy.parse(stub, true, function(parent, item){
+
+                        switch(parent) {
+                            case "Evt.Certificado.Participantes":
+                                return item.Nome;
+                        }
+                });
+
+                function filterProperty(text){
+
+                    if (text){
+
+                        var result =_.filter(flatfy.getProperties(), function(item){
+                            return item.path.includes(text);
+                        });
+
+                        return _.map(result, function(item){
+                            return {caption: item.path, value: item.pathValue, score: item.path.score(text), meta: "model"};
+                        });
+                    }
+
+                    return [];
+                }
+
+                function properties(){
+                    return flatfy.getProperties();
+                }
+
+                function initAce(){
+
+                    var langTools = ace.require("ace/ext/language_tools");
+
+                    var editor = ace.edit("editor");
+
+                    var session = editor.getSession();
+                    session.setMode("ace/mode/javascript");
+                    session.setUseWrapMode(true);
+
+                    editor.setOptions({
+                        enableBasicAutocompletion: true
+                    });
+
+                    var completer = {
+                        getCompletions: function(editor, session, pos, prefix, callback) {
+                            if (prefix.length === 0) { callback(null, []); return }
+                            console.log(filterProperty(prefix));
+                            callback(null, filterProperty(prefix));
+                        }
+                    };
+
+                    langTools.setCompleters([completer]);
+                    //langTools.addCompleter(completer);
+                }
+
+                initAce()
+
+            })
+
+        }(angular));
+
+
+    </script>
+
+</body>
+</html>

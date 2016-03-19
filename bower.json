@@ -1,0 +1,22 @@
+{
+  "name": "flatfy-js",
+  "description": "",
+  "main": "src/flatfy.js",
+  "authors": [
+    "Victor Oliveira <victor.oliveira@constant.com.br>"
+  ],
+  "license": "MIT",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
