@@ -146,6 +146,9 @@
 
             var createPropertyPath = function (parent, value) {
                 if (parent) {
+                    if (isArrayIndexValue(value)){
+                        return parent + '' + value;
+                    }
                     return parent + '.' + value;
                 }
                 return value;
@@ -165,6 +168,14 @@
                     return parts[parts.length - 1];
                 }
                 return parentName;
+            };
+
+            var isArrayIndexValue = function(value) {
+                return value.substring(0,1) === '[' && isNumber(value.substring(1,2)) && value.substring(2,3) === ']';
+            }
+
+            var isNumber = function (value) {
+                return !isNaN(String(value) * 1);
             };
 
             this.getValue = function () {
