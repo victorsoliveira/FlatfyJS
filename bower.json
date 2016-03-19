@@ -18,5 +18,13 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "angular": "^1.5.2",
+    "lodash": "^4.6.1",
+    "angular-ui-ace": "^0.2.3"
+  },
+  "resolutions": {
+    "angular-ui-ace": "^0.2.3"
+  }
 }

@@ -7,7 +7,8 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "mocha --ui bdd --recursive tests"
+    "test": "mocha --ui bdd --recursive tests",
+    "postinstall": "bower install"
   },
   "author": "",
   "license": "MIT",

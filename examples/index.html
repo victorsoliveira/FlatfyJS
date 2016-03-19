@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tests</title>
+    <title>Some Tests</title>
 </head>
 <body ng-app="TestApp" ng-controller="TestCtrl as vm">
 
@@ -92,7 +92,6 @@
                     var completer = {
                         getCompletions: function(editor, session, pos, prefix, callback) {
                             if (prefix.length === 0) { callback(null, []); return }
-                            console.log(filterProperty(prefix));
                             callback(null, filterProperty(prefix));
                         }
                     };
