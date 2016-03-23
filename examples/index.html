@@ -26,14 +26,26 @@
                 $provide.constant('lodash', window._);
                 $provide.constant('ace', window.ace);
                 $provide.constant('stub', {
-                    Evt: {
-                        Certificado: {
-                            Mandatorio: true,
-                            Titulo: "Foo",
-                            Participantes: [
-                                {Nome: "Fulano"},
-                                {Nome: "Ciclano"}
-                            ]
+                    Evt:  {
+                        "PropriedadesAlteradas": {
+                            "Observacao": {
+                                "ValorAnterior": "sss",
+                                "ValorAtual": "sssaa"
+                            }
+                        },
+                        "Id": "6c1d0de4-3584-4f17-909a-1697eb4af7b5",
+                        "Responsavel": "LUCAS PORTES",
+                        "Observacao": "sssaa",
+                        "CID": "",
+                        "Inicio": "2015-09-01T00:00:00",
+                        "Fim": "2016-03-01T00:00:00",
+                        "PericiaRetorno": null,
+                        "Trabalhador": {
+                            "Id": "1abd4756-c02d-4580-9a93-b0bc80d95356",
+                            "Matricula": "00105055",
+                            "Nome": "JOSE CARLOS RODRIGUES DE ALMEIDA",
+                            "FuncaoDescricao": "MARINHEIRO DE MAQUINAS",
+                            "UOPNome": "ODN I"
                         }
                     }
                 });
