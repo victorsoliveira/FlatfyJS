@@ -39,17 +39,24 @@
     return function() {
 
         var results;
+        var expressionValuePattern = /([^=]+?)=([\s\S]*)/i;
 
         return {
-            parse: function(obj, onlyPrimitiveProperties, decorateArrayIndexFn){
-                results = defineProperties(null, null, obj, onlyPrimitiveProperties, decorateArrayIndexFn);
+            parse: function(obj, onlyPrimitiveProperties, arrayIndexDecoratorFn){
+                results = defineProperties(null, null, obj, onlyPrimitiveProperties, arrayIndexDecoratorFn);
             },
-            getProperties: function(){
+            listProperties: function(){
               return results;
+            },
+            setValue: function(target, expession) {
+
+            },
+            getValue: function(valuePath) {
+
             }
         };
 
-        function defineProperties(parentName, parentValue, from, onlyPrimitiveProperties, decorateArrayIndexFn) {
+        function defineProperties(parentName, parentValue, from, onlyPrimitiveProperties, arrayIndexDecoratorFn) {
 
             var collection = new PropertyCollection(onlyPrimitiveProperties);
 
@@ -68,8 +75,8 @@
                                 var defaultValue =  '[' + aI.toString() + ']';
                                 var name = defaultValue;
 
-                                if (decorateArrayIndexFn){
-                                    name = decorateArrayIndexFn(parentName, item);
+                                if (arrayIndexDecoratorFn){
+                                    name = arrayIndexDecoratorFn(parentName, item);
                                     if(!name || name === ''){
                                         name = defaultValue;
                                     }
@@ -79,7 +86,7 @@
 
                                 if (typeof item === 'object') {
 
-                                    var properties = defineProperties(property.path, property.pathValue, item, onlyPrimitiveProperties, decorateArrayIndexFn);
+                                    var properties = defineProperties(property.captionPath, property.valuePath, item, onlyPrimitiveProperties, arrayIndexDecoratorFn);
 
                                     for (var aJ = 0; aJ < properties.length; aJ++){
                                         var aP = properties[aJ];
@@ -100,7 +107,7 @@
 
                             if (property.getValue() && (property.type === 'object' || property.type === 'array')) {
 
-                                var properties = defineProperties(property.path, property.pathValue, property.getValue(), onlyPrimitiveProperties, decorateArrayIndexFn);
+                                var properties = defineProperties(property.captionPath, property.valuePath, property.getValue(), onlyPrimitiveProperties, arrayIndexDecoratorFn);
 
                                 for (var oJ = 0; oJ < properties.length; oJ++){
                                     var oP = properties[oJ];
@@ -154,8 +161,7 @@
                 return value;
             };
 
-            var findPropertyType  = function(property)
-            {
+            var findPropertyType  = function(property) {
                 if (property.getValue === null) {
                     return "string";
                 }
@@ -198,8 +204,8 @@
             this.name = propertyName;
             this.value = propertyValue;
             this.parentFullName = getParentName();
-            this.path = createPropertyPath(parentName, propertyName);
-            this.pathValue = createPropertyPath(parentValue, propertyValue);
+            this.captionPath = createPropertyPath(parentName, propertyName);
+            this.valuePath = createPropertyPath(parentValue, propertyValue);
             this.type = findPropertyType(this);
         }
 

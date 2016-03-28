@@ -55,9 +55,7 @@
 
                 var vm = this;
 
-                angular.extend(vm, {
-                    getProperties: properties
-                });
+                angular.extend(vm, {});
 
                 flatfy.parse(stub, true, function(parent, item){
 
@@ -71,21 +69,18 @@
 
                     if (text){
 
-                        var result =_.filter(flatfy.getProperties(), function(item){
+                        var result =_.filter(flatfy.listProperties(), function(item){
                             return item.path.includes(text);
                         });
 
                         return _.map(result, function(item){
-                            return {caption: item.path, value: item.pathValue, score: item.path.score(text), meta: "model"};
+                            return {caption: item.captionPath, value: item.valuePath, score: item.path.score(text), meta: "model"};
                         });
                     }
 
                     return [];
                 }
 
-                function properties(){
-                    return flatfy.getProperties();
-                }
 
                 function initAce(){
 

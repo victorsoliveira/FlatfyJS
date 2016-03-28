@@ -5,7 +5,13 @@
 var expect = require('expect.js');
 var Flatfy = require('../src/flatfy')();
 
-describe('Instance', function() {
+var stub = {
+    Foo: [
+        { Bar: "Bar 1"}
+    ]
+};
+
+describe('instance', function() {
 
     it('should not be undefined', function () {
         expect(Flatfy).to.be.ok();
@@ -13,17 +19,44 @@ describe('Instance', function() {
 
 });
 
-describe('ArrayIndexDecoratorFunction', function(){
+describe('list properties', function() {
 
-    it('should resolve path and pathValue correctly', function() {
 
-        var stub = {
-            Foo: [
-                { Bar: "Bar 1"},
-                { Bar: "Bar 2"},
-                { Bar: "Bar 3"}
-            ]
-        };
+    it('should list all properties', function () {
+        Flatfy.parse(stub);
+
+        var allProperties = Flatfy.listProperties();
+
+        expect(allProperties[0].captionPath).to.be('Foo');
+        expect(allProperties[0].valuePath).to.be('Foo');
+        expect(allProperties[1].captionPath).to.be('Foo[0]');
+        expect(allProperties[1].valuePath).to.be('Foo[0]');
+        expect(allProperties[2].captionPath).to.be('Foo[0].Bar');
+        expect(allProperties[2].valuePath).to.be('Foo[0].Bar');
+    });
+
+    it('should list only primitive properties', function () {
+        Flatfy.parse(stub, true);
+
+        var primitiveProperties = Flatfy.listProperties();
+
+        expect(primitiveProperties[0].captionPath).to.be('Foo[0].Bar');
+        expect(primitiveProperties[0].valuePath).to.be('Foo[0].Bar');
+    });
+
+    it('should resolve correctly property types', function () {
+        Flatfy.parse(stub);
+
+        var allProperties = Flatfy.listProperties();
+
+
+    });
+
+});
+
+describe('Array index decorator function', function(){
+
+    it('should resolve captionPath and valuePath correctly', function() {
 
         Flatfy.parse(stub, true, function(parent, item){
 
@@ -34,14 +67,10 @@ describe('ArrayIndexDecoratorFunction', function(){
 
         });
 
-        var properties = Flatfy.getProperties();
+        var primitiveProperties = Flatfy.listProperties();
 
-        expect(properties[0].path).to.be('Foo.Bar 1.Bar');
-        expect(properties[0].pathValue).to.be('Foo[0].Bar');
-        expect(properties[1].path).to.be('Foo.Bar 2.Bar');
-        expect(properties[1].pathValue).to.be('Foo[1].Bar');
-        expect(properties[2].path).to.be('Foo.Bar 3.Bar');
-        expect(properties[2].pathValue).to.be('Foo[2].Bar');
+        expect(primitiveProperties[0].captionPath).to.be('Foo.Bar 1.Bar');
+        expect(primitiveProperties[0].valuePath).to.be('Foo[0].Bar');
     });
 
 });
