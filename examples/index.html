@@ -57,24 +57,18 @@
 
                 angular.extend(vm, {});
 
-                flatfy.parse(stub, true, function(parent, item){
-
-                        switch(parent) {
-                            case "Evt.Certificado.Participantes":
-                                return item.Nome;
-                        }
-                });
+                flatfy.parse(stub, true);
 
                 function filterProperty(text){
 
                     if (text){
 
                         var result =_.filter(flatfy.listProperties(), function(item){
-                            return item.path.includes(text);
+                            return _.includes(item.captionPath, text);
                         });
 
                         return _.map(result, function(item){
-                            return {caption: item.captionPath, value: item.valuePath, score: item.path.score(text), meta: "model"};
+                            return {caption: item.captionPath, value: item.valuePath, score: item.captionPath.score(text), meta: "model"};
                         });
                     }
 
