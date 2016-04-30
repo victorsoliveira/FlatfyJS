@@ -18,19 +18,21 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define([], function () {
-            return (root.Flatfy = factory());
+        define(['lodash'], function (_) {
+            return (root.Flatfy = factory(_));
         });
     } else if (typeof module === 'object' && module.exports) {
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like enviroments that support module.exports,
         // like Node.
-        module.exports = factory();
+        var lodash = global.lodash || require('lodash');
+        module.exports = factory(lodash);
     } else {
         // Browser globals
-        root.Flatfy = factory();
+        var lodash = root.lodash || root._;
+        root.Flatfy = factory(lodash);
     }
-}(this, function () {
+}(this, function (_) {
     //use b in some fashion.
 
     // Just return a value to define the module export.
@@ -38,25 +40,18 @@
     // can return a function as the exported value.
     return function() {
 
-        var results;
-        var expressionValuePattern = /([^=]+?)=([\s\S]*)/i;
+        var properties;
 
         return {
             parse: function(obj, onlyPrimitiveProperties, arrayIndexDecoratorFn){
-                results = defineProperties(null, null, obj, onlyPrimitiveProperties, arrayIndexDecoratorFn);
+                properties = resolveProperties(null, null, obj, onlyPrimitiveProperties, arrayIndexDecoratorFn);
             },
             listProperties: function(){
-              return results;
-            },
-            setValue: function(target, expession) {
-
-            },
-            getValue: function(valuePath) {
-
+              return properties;
             }
         };
 
-        function defineProperties(parentName, parentValue, from, onlyPrimitiveProperties, arrayIndexDecoratorFn) {
+        function resolveProperties(parentName, parentValue, from, onlyPrimitiveProperties, arrayIndexDecoratorFn) {
 
             var collection = new PropertyCollection(onlyPrimitiveProperties);
 
@@ -86,7 +81,7 @@
 
                                 if (typeof item === 'object') {
 
-                                    var properties = defineProperties(property.captionPath, property.valuePath, item, onlyPrimitiveProperties, arrayIndexDecoratorFn);
+                                    var properties = resolveProperties(property.captionPath, property.valuePath, item, onlyPrimitiveProperties, arrayIndexDecoratorFn);
 
                                     for (var aJ = 0; aJ < properties.length; aJ++){
                                         var aP = properties[aJ];
@@ -105,9 +100,9 @@
                             var name = ownProperties[oI];
                             var property = collection.addNewProperty(from, parentName, parentValue, name, name);
 
-                            if (property.getValue() && (property.type === 'object' || property.type === 'array')) {
+                            if (property.getValue() && (property.valueType === 'object' || property.valueType === 'array')) {
 
-                                var properties = defineProperties(property.captionPath, property.valuePath, property.getValue(), onlyPrimitiveProperties, arrayIndexDecoratorFn);
+                                var properties = resolveProperties(property.captionPath, property.valuePath, property.getValue(), onlyPrimitiveProperties, arrayIndexDecoratorFn);
 
                                 for (var oJ = 0; oJ < properties.length; oJ++){
                                     var oP = properties[oJ];
@@ -124,13 +119,13 @@
 
             }
 
-            return collection.collection;
+            return collection.properties;
 
         }
 
         function PropertyCollection(onlyPrimitiveProperties) {
 
-            this.collection = [];
+            this.properties = [];
 
             this.addNewProperty = function (parent, parentName, parentValue, name, value) {
                 var p = new Property(parent, parentName, parentValue, name, value);
@@ -140,11 +135,11 @@
 
             this.addProperty=function(p) {
                 if (onlyPrimitiveProperties){
-                    if (p.getValue() && (p.type !== 'object' && p.type !== 'array')){
-                        this.collection.push(p);
+                    if (p.getValue() && (p.valueType !== 'object' && p.valueType !== 'array')){
+                        this.properties.push(p);
                     }
                 } else {
-                    this.collection.push(p);
+                    this.properties.push(p);
                 }
             };
         }
@@ -162,10 +157,14 @@
             };
 
             var findPropertyType  = function(property) {
-                if (property.getValue === null) {
+                var value = property.getValue();
+                if (value === null) {
                     return "string";
                 }
-                return typeof property.getValue();
+                if (Array.isArray(value)){
+                    return "array";
+                }
+                return (typeof value);
             };
 
             var getParentName = function () {
@@ -176,9 +175,16 @@
                 return parentName;
             };
 
+            var getSafeValue = function(value) {
+                if (isArrayIndexValue(value)){
+                    return value.substring(1,2);
+                }
+                return value;
+            };
+
             var isArrayIndexValue = function(value) {
                 return value.substring(0,1) === '[' && isNumber(value.substring(1,2)) && value.substring(2,3) === ']';
-            }
+            };
 
             var isNumber = function (value) {
                 return !isNaN(String(value) * 1);
@@ -187,9 +193,11 @@
             this.getValue = function () {
                 return this.declaringObject[this.value];
             };
+
             this.setValue = function (value) {
                 this.declaringObject[this.value] = value;
             };
+
             this.isJSON = function (value) {
                 var isJson = false;
                 try {
@@ -200,13 +208,14 @@
                 }
                 return isJson;
             };
+
             this.declaringObject = declaringObject;
-            this.name = propertyName;
-            this.value = propertyValue;
+            this.name = getSafeValue(propertyName);
+            this.value = getSafeValue(propertyValue);
             this.parentFullName = getParentName();
             this.captionPath = createPropertyPath(parentName, propertyName);
             this.valuePath = createPropertyPath(parentValue, propertyValue);
-            this.type = findPropertyType(this);
+            this.valueType = findPropertyType(this);
         }
 
     }
